@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素鸟游戏</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #4ac0ff;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background-image: linear-gradient(to bottom, #4ac0ff 0%, #2a8bc7 100%);
+        }
+        
+        #game-container {
+            position: relative;
+            width: 320px;
+            height: 480px;
+            overflow: hidden;
+            background-color: #70c5ce;
+            border: 4px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background-image: linear-gradient(to bottom, #87ceeb 0%, #70c5ce 100%);
+        }
+        
+        .clouds {
+            position: absolute;
+            width: 60px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            top: 80px;
+            animation: cloud-move 15s linear infinite;
+        }
+        
+        .clouds:before, .clouds:after {
+            content: '';
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+        
+        .clouds:before {
+            width: 25px;
+            height: 25px;
+            top: -10px;
+            left: 10px;
+        }
+        
+        .clouds:after {
+            width: 25px;
+            height: 25px;
+            top: -7px;
+            right: 10px;
+        }
+        
+        .cloud1 { animation-duration: 20s; top: 50px; left: -60px; }
+        .cloud2 { animation-duration: 25s; top: 100px; left: -60px; animation-delay: 5s; }
+        .cloud3 { animation-duration: 18s; top: 150px; left: -60px; animation-delay: 10s; }
+        
+        @keyframes cloud-move {
+            from { left: -60px; }
+            to { left: 380px; }
+        }
+        
+        .ground {
+            position: absolute;
+            width: 100%;
+            height: 80px;
+            bottom: 0;
+            background-color: #5EAA47;
+            border-top: 4px solid #333;
+            z-index: 1;
+            background-image: linear-gradient(to bottom, #73bf2e 0%, #5EAA47 100%);
+        }
+        
+        #bird {
+            position: absolute;
+            width: 34px;
+            height: 24px;
+            background-color: #ffcc00;
+            border-radius: 50% 60% 40% 50%;
+            left: 60px;
+            top: 240px;
+            z-index: 10;
+            border: 2px solid #333;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+        
+        #bird:after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 5px;
+            right: 5px;
+        }
+        
+        #bird:before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 8px;
+            background-color: #ff6600;
+            border-radius: 2px;
+            top: 8px;
+            right: -8px;
+            border: 1px solid #333;
+        }
+        
+        .pipe {
+            position: absolute;
+            width: 52px;
+            background-color: #73bf2e;
+            border: 2px solid #333;
+            z-index: 5;
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        
+        .pipe-top {
+            top: 0;
+            border-bottom: none;
+            border-radius: 2px 2px 0 0;
+        }
+        
+        .pipe-cap-top {
+            position: absolute;
+            width: 60px;
+            height: 15px;
+            background-color: #73bf2e;
+            border: 2px solid #333;
+            border-radius: 5px;
+            left: -6px;
+            bottom: -2px;
+            z-index: 6;
+            background-image: linear-gradient(to bottom, #8cd832 0%, #73bf2e 100%);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+        }
+        
+        .pipe-bottom {
+            bottom: 0;
+            border-top: none;
+            border-radius: 0 0 2px 2px;
+        }
+        
+        .pipe-cap-bottom {
+            position: absolute;
+            width: 60px;
+            height: 15px;
+            background-color: #73bf2e;
+            border: 2px solid #333;
+            border-radius: 5px;
+            left: -6px;
+            top: -2px;
+            z-index: 6;
+            background-image: linear-gradient(to bottom, #8cd832 0%, #73bf2e 100%);
+            box-shadow: 0 -2px 3px rgba(0,0,0,0.3);
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 42px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+            z-index: 10;
+        }
+        
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 28px;
+            display: none;
+            z-index: 20;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            font-size: 20px;
+            background-color: #73bf2e;
+            color: white;
+            border: 3px solid #333;
+            border-radius: 10px;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #333;
+            box-shadow: 0 5px 0 #5a9e21, 0 5px 10px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+        
+        button:hover {
+            background-color: #8cd832;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #5a9e21, 0 7px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #5a9e21, 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 32px;
+            z-index: 30;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .game-title {
+            font-size: 48px;
+            color: #ffcc00;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 0 #333;
+        }
+        
+        .instructions {
+            margin: 20px;
+            font-size: 18px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        .difficulty-selector {
+            display: flex;
+            margin: 10px 0;
+        }
+        
+        .difficulty-option {
+            margin: 0 5px;
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .difficulty-option.selected {
+            background-color: #73bf2e;
+        }
+        
+        #home-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            background-color: #73bf2e;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 15;
+            box-shadow: 0 3px 0 #5a9e21, 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        #home-button:hover {
+            background-color: #8cd832;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #5a9e21, 0 5px 10px rgba(0,0,0,0.3);
+        }
+        
+        #home-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #5a9e21, 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        #home-icon {
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+        
+        #home-icon:before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 14px;
+            background-color: transparent;
+            border-top: 10px solid white;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            top: -7px;
+            left: -5px;
+        }
+        
+        #home-icon:after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            bottom: 0;
+            left: 5px;
+            border-radius: 2px 2px 0 0;
+        }
+        
+        .warning-message {
+            color: #ffcc00;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="clouds cloud1"></div>
+        <div class="clouds cloud2"></div>
+        <div class="clouds cloud3"></div>
+        <div class="ground"></div>
+        <div id="bird"></div>
+        <div id="score">0</div>
+        
+        <div id="home-button">
+            <div id="home-icon"></div>
+        </div>
+        
+        <div id="game-over">
+            <div>游戏结束!</div>
+            <div id="final-score">得分: 0</div>
+            <button id="restart-button">重新开始</button>
+            <button id="menu-button">返回主菜单</button>
+        </div>
+        
+        <div id="start-screen">
+            <div class="game-title">像素鸟</div>
+            <div class="instructions">点击屏幕或按空格键使鸟儿飞翔<br>避开管道获得高分!</div>
+            
+            <div class="difficulty-selector">
+                <div class="difficulty-option selected" data-difficulty="very-easy">非常简单</div>
+                <div class="difficulty-option" data-difficulty="easy">简单</div>
+                <div class="difficulty-option" data-difficulty="normal">普通</div>
+            </div>
+            
+            <button id="start-button">开始游戏</button>
+            <div class="warning-message">提示：游戏开始后，左上角可点击返回主菜单</div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏变量
+        const bird = document.getElementById('bird');
+        const gameContainer = document.getElementById('game-container');
+        const scoreDisplay = document.getElementById('score');
+        const gameOver = document.getElementById('game-over');
+        const finalScore = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const menuButton = document.getElementById('menu-button');
+        const startScreen = document.getElementById('start-screen');
+        const startButton = document.getElementById('start-button');
+        const homeButton = document.getElementById('home-button');
+        const difficultyOptions = document.querySelectorAll('.difficulty-option');
+        
+        let birdY = 240;
+        let birdVelocity = 0;
+        let birdGravity = 0.2; // 进一步降低重力
+        let birdJump = -6;  // 降低跳跃冲力
+        let pipes = [];
+        let score = 0;
+        let gameRunning = false;
+        let animationId;
+        let lastPipeTime = 0;
+        let pipeSpeed = 1.2; // 降低管道速度
+        let minGapSize = 180; // 更大的间隙
+        let difficulty = 'very-easy'; // 默认超简单难度
+        let startDelay = true; // 开局延迟生成管道
+        let groundHeight = 80; // 地面高度
+        let firstPipePosition = 450; // 确保第一个管道距离起点足够远
+        
+        // 选择难度
+        difficultyOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                difficultyOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                difficulty = this.dataset.difficulty;
+                updateDifficultySettings();
+            });
+        });
+        
+        // 根据难度更新设置
+        function updateDifficultySettings() {
+            switch(difficulty) {
+                case 'very-easy':
+                    birdGravity = 0.2;
+                    birdJump = -6;
+                    pipeSpeed = 1.2;
+                    minGapSize = 180;
+                    break;
+                case 'easy':
+                    birdGravity = 0.3;
+                    birdJump = -7;
+                    pipeSpeed = 1.5;
+                    minGapSize = 150;
+                    break;
+                case 'normal':
+                    birdGravity = 0.4;
+                    birdJump = -8;
+                    pipeSpeed = 1.8;
+                    minGapSize = 130;
+                    break;
+            }
+        }
+        
+        // 返回主菜单
+        function returnToMainMenu() {
+            if (gameRunning) {
+                cancelAnimationFrame(animationId);
+                gameRunning = false;
+            }
+            gameOver.style.display = 'none';
+            startScreen.style.display = 'flex';
+            
+            // 移除所有现有的管道
+            document.querySelectorAll('.pipe, .pipe-cap-top, .pipe-cap-bottom').forEach(pipe => {
+                pipe.remove();
+            });
+            
+            // 重置鸟的位置
+            birdY = 240;
+            bird.style.top = birdY + 'px';
+            bird.style.transform = 'rotate(0deg)';
+        }
+        
+        // 开始游戏
+        function startGame() {
+            startScreen.style.display = 'none';
+            resetGame();
+            gameRunning = true;
+            
+            // 开局延迟生成管道，给玩家适应时间
+            setTimeout(() => {
+                startDelay = false;
+                createFirstPipe();
+                lastPipeTime = Date.now();
+            }, 2500); // 延长延迟时间
+            
+            animationId = requestAnimationFrame(updateGame);
+        }
+        
+        // 创建第一个管道（确保在屏幕外）
+        function createFirstPipe() {
+            createPipe(firstPipePosition);
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            birdY = 240;
+            birdVelocity = 0;
+            bird.style.transform = 'rotate(0deg)';
+            pipes = [];
+            score = 0;
+            scoreDisplay.innerText = score;
+            gameOver.style.display = 'none';
+            startDelay = true;
+            
+            // 移除所有现有的管道
+            document.querySelectorAll('.pipe, .pipe-cap-top, .pipe-cap-bottom').forEach(pipe => {
+                pipe.remove();
+            });
+            
+            updateDifficultySettings();
+        }
+        
+        // 创建新管道
+        function createPipe(xPosition = null) {
+            // 根据难度调整间隙大小和位置
+            const gap = minGapSize + Math.random() * 30;
+            // 确保间隙不会太靠近顶部或底部
+            const minTop = 60;
+            const maxTop = gameContainer.clientHeight - gap - groundHeight - 60;
+            const gapTop = minTop + Math.random() * (maxTop - minTop);
+            
+            // 使用传入的X位置或默认容器宽度
+            const pipeX = xPosition !== null ? xPosition : gameContainer.clientWidth;
+            
+            // 创建上管道
+            const topPipe = document.createElement('div');
+            topPipe.className = 'pipe pipe-top';
+            topPipe.style.height = gapTop + 'px';
+            topPipe.style.left = pipeX + 'px';
+            gameContainer.appendChild(topPipe);
+            
+            // 创建上管道帽子
+            const topPipeCap = document.createElement('div');
+            topPipeCap.className = 'pipe-cap-top';
+            topPipe.appendChild(topPipeCap);
+            
+            // 创建下管道
+            const bottomPipe = document.createElement('div');
+            bottomPipe.className = 'pipe pipe-bottom';
+            bottomPipe.style.height = (gameContainer.clientHeight - gapTop - gap - groundHeight) + 'px';
+            bottomPipe.style.left = pipeX + 'px';
+            gameContainer.appendChild(bottomPipe);
+            
+            // 创建下管道帽子
+            const bottomPipeCap = document.createElement('div');
+            bottomPipeCap.className = 'pipe-cap-bottom';
+            bottomPipe.appendChild(bottomPipeCap);
+            
+            // 将管道信息添加到数组
+            pipes.push({
+                x: pipeX,
+                top: topPipe,
+                bottom: bottomPipe,
+                passed: false
+            });
+        }
+        
+        // 更新游戏状态
+        function updateGame() {
+            if (!gameRunning) return;
+            
+            // 应用重力
+            birdVelocity += birdGravity;
+            birdY += birdVelocity;
+            bird.style.top = birdY + 'px';
+            
+            // 旋转鸟身体根据速度，但限制旋转角度防止过度旋转
+            const rotation = birdVelocity * 1.5;
+            bird.style.transform = `rotate(${Math.min(Math.max(rotation, -25), 70)}deg)`;
+            
+            // 检查碰撞（顶部边界和地面）
+            if (birdY < 0 || birdY + bird.clientHeight > gameContainer.clientHeight - groundHeight) {
+                endGame();
+                return;
+            }
+            
+            // 创建新管道，但开局有延迟
+            if (!startDelay) {
+                const now = Date.now();
+                const pipeInterval = difficulty === 'very-easy' ? 2500 : 
+                                   difficulty === 'easy' ? 2200 : 2000;
+                                   
+                if (now - lastPipeTime > pipeInterval) {
+                    createPipe();
+                    lastPipeTime = now;
+                }
+            }
+            
+            // 移动和检查管道
+            for (let i = 0; i < pipes.length; i++) {
+                const pipe = pipes[i];
+                pipe.x -= pipeSpeed;
+                pipe.top.style.left = pipe.x + 'px';
+                pipe.bottom.style.left = pipe.x + 'px';
+                
+                // 检查是否通过了管道
+                if (!pipe.passed && pipe.x + pipe.top.clientWidth < bird.offsetLeft) {
+                    pipe.passed = true;
+                    score++;
+                    scoreDisplay.innerText = score;
+                }
+                
+                // 碰撞检测优化 - 使用更宽松的碰撞盒（更容易）
+                const birdRect = {
+                    left: bird.offsetLeft + 6, // 缩小碰撞盒
+                    right: bird.offsetLeft + bird.clientWidth - 6,
+                    top: bird.offsetTop + 6,
+                    bottom: bird.offsetTop + bird.clientHeight - 6
+                };
+                
+                const topPipeRect = {
+                    left: pipe.x,
+                    right: pipe.x + pipe.top.clientWidth,
+                    top: 0,
+                    bottom: pipe.top.clientHeight
+                };
+                
+                const bottomPipeRect = {
+                    left: pipe.x,
+                    right: pipe.x + pipe.bottom.clientWidth,
+                    top: gameContainer.clientHeight - groundHeight - pipe.bottom.clientHeight,
+                    bottom: gameContainer.clientHeight - groundHeight
+                };
+                
+                if (
+                    (birdRect.right > topPipeRect.left &&
+                     birdRect.left < topPipeRect.right &&
+                     birdRect.top < topPipeRect.bottom) ||
+                    (birdRect.right > bottomPipeRect.left &&
+                     birdRect.left < bottomPipeRect.right &&
+                     birdRect.bottom > bottomPipeRect.top)
+                ) {
+                    endGame();
+                    return;
+                }
+                
+                // 移除超出屏幕的管道
+                if (pipe.x + pipe.top.clientWidth < 0) {
+                    pipe.top.remove();
+                    pipe.bottom.remove();
+                    pipes.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            animationId = requestAnimationFrame(updateGame);
+        }
+        
+        // 结束游戏
+        function endGame() {
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            finalScore.innerText = `得分: ${score}`;
+            gameOver.style.display = 'flex';
+        }
+        
+        // 控制鸟儿跳跃
+        function jump() {
+            if (!gameRunning) return;
+            birdVelocity = birdJump;
+        }
+        
+        // 点击事件处理
+        gameContainer.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'BUTTON' && 
+                e.target.className !== 'difficulty-option' && 
+                e.target !== homeButton &&
+                e.target !== document.getElementById('home-icon')) {
+                jump();
+            }
+        });
+        
+        // 键盘事件处理
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                jump();
+                e.preventDefault(); // 防止页面滚动
+            } else if (e.code === 'Escape') {
+                returnToMainMenu();
+                e.preventDefault();
+            }
+        });
+        
+        // 主页按钮点击事件
+        homeButton.addEventListener('click', returnToMainMenu);
+        
+        // 菜单按钮点击事件
+        menuButton.addEventListener('click', returnToMainMenu);
+        
+        // 开始和重启按钮
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        
+        // 防止触摸设备上的双击缩放
+        gameContainer.addEventListener('touchend', function(e) {
+            if (e.target.tagName !== 'BUTTON' && 
+                e.target.className !== 'difficulty-option' && 
+                e.target !== homeButton &&
+                e.target !== document.getElementById('home-icon')) {
+                e.preventDefault();
+                jump();
+            }
+        });
+    </script>
+</body>
+</html>
