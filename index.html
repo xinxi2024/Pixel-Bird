@@ -390,19 +390,19 @@
         
         let birdY = 240;
         let birdVelocity = 0;
-        let birdGravity = 0.2; // 进一步降低重力
-        let birdJump = -6;  // 降低跳跃冲力
+        let birdGravity = 0.15; // 进一步降低重力（从0.2降至0.15）
+        let birdJump = -5;  // 降低跳跃冲力（从-6降至-5，使跳跃更平滑）
         let pipes = [];
         let score = 0;
         let gameRunning = false;
         let animationId;
         let lastPipeTime = 0;
-        let pipeSpeed = 1.2; // 降低管道速度
-        let minGapSize = 180; // 更大的间隙
+        let pipeSpeed = 1.0; // 降低管道速度（从1.2降至1.0）
+        let minGapSize = 200; // 更大的间隙（从180增至200）
         let difficulty = 'very-easy'; // 默认超简单难度
         let startDelay = true; // 开局延迟生成管道
         let groundHeight = 80; // 地面高度
-        let firstPipePosition = 450; // 确保第一个管道距离起点足够远
+        let firstPipePosition = 500; // 确保第一个管道距离起点足够远（从450增至500）
         
         // 选择难度
         difficultyOptions.forEach(option => {
@@ -418,22 +418,22 @@
         function updateDifficultySettings() {
             switch(difficulty) {
                 case 'very-easy':
-                    birdGravity = 0.2;
-                    birdJump = -6;
-                    pipeSpeed = 1.2;
-                    minGapSize = 180;
+                    birdGravity = 0.15;
+                    birdJump = -5;
+                    pipeSpeed = 1.0;
+                    minGapSize = 200;
                     break;
                 case 'easy':
-                    birdGravity = 0.3;
-                    birdJump = -7;
-                    pipeSpeed = 1.5;
-                    minGapSize = 150;
+                    birdGravity = 0.2;
+                    birdJump = -6;
+                    pipeSpeed = 1.3;
+                    minGapSize = 170;
                     break;
                 case 'normal':
-                    birdGravity = 0.4;
-                    birdJump = -8;
-                    pipeSpeed = 1.8;
-                    minGapSize = 130;
+                    birdGravity = 0.3;
+                    birdJump = -7;
+                    pipeSpeed = 1.6;
+                    minGapSize = 150;
                     break;
             }
         }
@@ -469,7 +469,7 @@
                 startDelay = false;
                 createFirstPipe();
                 lastPipeTime = Date.now();
-            }, 2500); // 延长延迟时间
+            }, 3000); // 延长延迟时间（从2500增至3000）
             
             animationId = requestAnimationFrame(updateGame);
         }
@@ -501,9 +501,9 @@
         // 创建新管道
         function createPipe(xPosition = null) {
             // 根据难度调整间隙大小和位置
-            const gap = minGapSize + Math.random() * 30;
+            const gap = minGapSize + Math.random() * 40; // 更随机的间隙大小（从30增至40）
             // 确保间隙不会太靠近顶部或底部
-            const minTop = 60;
+            const minTop = 50; // 降低最小顶部高度（从60降至50）
             const maxTop = gameContainer.clientHeight - gap - groundHeight - 60;
             const gapTop = minTop + Math.random() * (maxTop - minTop);
             
@@ -565,8 +565,8 @@
             // 创建新管道，但开局有延迟
             if (!startDelay) {
                 const now = Date.now();
-                const pipeInterval = difficulty === 'very-easy' ? 2500 : 
-                                   difficulty === 'easy' ? 2200 : 2000;
+                const pipeInterval = difficulty === 'very-easy' ? 3000 : 
+                                   difficulty === 'easy' ? 2500 : 2200;
                                    
                 if (now - lastPipeTime > pipeInterval) {
                     createPipe();
@@ -590,10 +590,10 @@
                 
                 // 碰撞检测优化 - 使用更宽松的碰撞盒（更容易）
                 const birdRect = {
-                    left: bird.offsetLeft + 6, // 缩小碰撞盒
-                    right: bird.offsetLeft + bird.clientWidth - 6,
-                    top: bird.offsetTop + 6,
-                    bottom: bird.offsetTop + bird.clientHeight - 6
+                    left: bird.offsetLeft + 8, // 缩小碰撞盒（从6增至8）
+                    right: bird.offsetLeft + bird.clientWidth - 8,
+                    top: bird.offsetTop + 8,
+                    bottom: bird.offsetTop + bird.clientHeight - 8
                 };
                 
                 const topPipeRect = {
